@@ -71,7 +71,7 @@ Este projeto utiliza um ESP32 para monitorar a luminosidade ambiente e controlar
 - **`handleLuminosity()`**: Lê e processa o valor da luminosidade, acendendo os LEDs apropriados e publicando o valor.
 - **`apagaLeds()`**: Desliga todos os LEDs.
 
-## Integarntes
+## Integrantes
 
 Fernando Carlos Colque Huaranca - rm558095
 
