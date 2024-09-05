@@ -33,16 +33,14 @@ char* TOPICO_PUBLISH_1 = const_cast<char*>(default_TOPICO_PUBLISH_1);
 char* TOPICO_PUBLISH_2 = const_cast<char*>(default_TOPICO_PUBLISH_2);
 char* ID_MQTT = const_cast<char*>(default_ID_MQTT);
 
-WiFiClient espClient;// Cliente Wi-Fi
-PubSubClient MQTT(espClient);// Cliente MQTT
-char EstadoSaida = '0';// Estado do LED: '0' para desligado, '1' para ligado
+WiFiClient espClient;
+PubSubClient MQTT(espClient);
+char EstadoSaida = '0';
 
-// Função para inicializar a comunicação serial
 void initSerial() {
     Serial.begin(115200);
 }
 
-// Função para conectar-se à rede Wi-Fi
 void initWiFi() {
     delay(10);
     Serial.println("------Conexao WI-FI------");
@@ -52,13 +50,11 @@ void initWiFi() {
     reconectWiFi();
 }
 
-// Função para configurar a conexão MQTT
 void initMQTT() {
-    MQTT.setServer(BROKER_MQTT, BROKER_PORT); // Define o servidor MQTT e a porta
-    MQTT.setCallback(mqtt_callback); // Define a função de callback para mensagens recebidas
+    MQTT.setServer(BROKER_MQTT, BROKER_PORT);
+    MQTT.setCallback(mqtt_callback);
 }
 
-// Função de configuração inicial: inicialização dos pins e do ldr
 void setup() {
     pinMode(ldrPin, INPUT);
     pinMode(ledGreen, OUTPUT);
@@ -68,12 +64,11 @@ void setup() {
     initWiFi();
     initMQTT();
     delay(5000);
-    MQTT.publish(TOPICO_PUBLISH_1, "s|on"); / Publica o estado inicial do LED como 'on'
+    MQTT.publish(TOPICO_PUBLISH_1, "s|on");
 }
 
-// Função de loop principal
 void loop() {
-    VerificaConexoesWiFIEMQTT(); // Verifica e reconecta Wi-Fi e MQTT se necessário
+    VerificaConexoesWiFIEMQTT();
     EnviaEstadoOutputMQTT();
     if (EstadoSaida == '1') {
         handleLuminosity();
@@ -83,7 +78,6 @@ void loop() {
     MQTT.loop();
 }
 
-// Função para reconectar-se à rede Wi-Fi
 void reconectWiFi() {
     if (WiFi.status() == WL_CONNECTED)
         return;
@@ -99,7 +93,6 @@ void reconectWiFi() {
     Serial.println(WiFi.localIP());
 }
 
-// Função de callback para mensagens MQTT recebidas
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     String msg;
     for (int i = 0; i < length; i++) {
@@ -129,7 +122,6 @@ void VerificaConexoesWiFIEMQTT() {
     reconectWiFi();
 }
 
-// Função para enviar o estado atual do LED ao broker MQTT
 void EnviaEstadoOutputMQTT() {
     if (EstadoSaida == '1') {
         MQTT.publish(TOPICO_PUBLISH_1, "s|on");
@@ -142,7 +134,6 @@ void EnviaEstadoOutputMQTT() {
     delay(1000);
 }
 
-// Função para reconectar ao broker MQTT
 void reconnectMQTT() {
     while (!MQTT.connected()) {
         Serial.print("* Tentando se conectar ao Broker MQTT: ");
@@ -158,8 +149,6 @@ void reconnectMQTT() {
     }
 }
 
-// Função para lidar com a leitura e processamento da luminosidade
-// Controla os LEDs com base na luminosidade
 void handleLuminosity() {
     int sensorValue = analogRead(ldrPin);
     int luminosidade = map(sensorValue, 0, 4095, 0, 100); // Mapeia o valor para uma escala de 0 a 100
@@ -187,7 +176,6 @@ void handleLuminosity() {
     MQTT.publish(TOPICO_PUBLISH_2, mensagem.c_str());
 }
 
-// Função para apagar todos os LEDs
 void apagaLeds() {
     digitalWrite(ledGreen, LOW);
     digitalWrite(ledYellow, LOW);
